@@ -1,0 +1,1 @@
+# Django_shop_19.2-and-more
