@@ -1,0 +1,42 @@
+[
+{
+    "model": "catalog.category",
+    "pk": 11,
+    "fields": {
+        "name": "Newsletters",
+        "description": "Mass message sending"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 12,
+    "fields": {
+        "name": "Telegram Bots",
+        "description": "Automated programs for Telegram"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 13,
+    "fields": {
+        "name": "Useful Utilities",
+        "description": "Tools for improving productivity"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 14,
+    "fields": {
+        "name": "Web Applications",
+        "description": "Applications running in a browser"
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 15,
+    "fields": {
+        "name": "Microservices",
+        "description": "Modular web services"
+    }
+}
+]
