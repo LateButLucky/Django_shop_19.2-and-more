@@ -1,49 +1,81 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponseRedirect
-from django.core.paginator import Paginator
+from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.utils.text import slugify
+from .models import Product, Contact, BlogPost
 from .forms import ContactForm, ProductForm
-from .models import Contact, Product, Category
 
 
-def home(request):
-    products = Product.objects.all()
-    paginator = Paginator(products, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'catalog/home.html', {'page_obj': page_obj})
+class HomeView(ListView):
+    model = Product
+    template_name = 'catalog/home.html'
+    context_object_name = 'products'
+    paginate_by = 6
 
 
-def index(request):
-    products = Product.objects.all()
-    categories = Category.objects.all()
-    context = {
-        'products': products,
-        'categories': categories,
-    }
-    return render(request, 'catalog/index.html', context)
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'catalog/product_detail.html'
+    context_object_name = 'product'
 
 
-def contact(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        phone = request.POST.get('phone')
-        message = request.POST.get('message')
-        Contact.objects.create(name=name, phone=phone, message=message)
-    return render(request, 'contact.html')
+class ContactView(FormView):
+    template_name = 'catalog/contact.html'
+    form_class = ContactForm
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    context = {'product': product}
-    return render(request, 'catalog/product_detail.html', context)
+class CreateProductView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/create_product.html'
+    success_url = reverse_lazy('home')
 
 
-def create_product(request):
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    else:
-        form = ProductForm()
-    return render(request, 'catalog/create_product.html', {'form': form})
+class BlogPostListView(ListView):
+    model = BlogPost
+    template_name = 'catalog/blog_list.html'
+    context_object_name = 'blogposts'
+    queryset = BlogPost.objects.filter(published=True)
+
+
+class BlogPostDetailView(DetailView):
+    model = BlogPost
+    template_name = 'catalog/blog_detail.html'
+    context_object_name = 'blogpost'
+
+    def get_object(self, queryset=None):
+        blogpost = super().get_object(queryset)
+        blogpost.views += 1
+        blogpost.save()
+        return blogpost
+
+
+class BlogPostCreateView(CreateView):
+    model = BlogPost
+    template_name = 'catalog/blog_form.html'
+    fields = ['title', 'content', 'preview_image', 'published']
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object.slug = slugify(self.object.title)
+        self.object.save()
+        return response
+
+
+class BlogPostUpdateView(UpdateView):
+    model = BlogPost
+    template_name = 'catalog/blog_form.html'
+    fields = ['title', 'content', 'preview_image', 'published']
+
+    def get_success_url(self):
+        return reverse_lazy('blog_detail', args=[self.object.slug])
+
+
+class BlogPostDeleteView(DeleteView):
+    model = BlogPost
+    template_name = 'catalog/blog_confirm_delete.html'
+    success_url = reverse_lazy('blog_list')

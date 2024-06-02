@@ -1,5 +1,11 @@
 from django import forms
-from .models import Product
+from .models import Product, BlogPost
+
+
+class BlogPostForm(forms.ModelForm):
+    class Meta:
+        model = BlogPost
+        fields = ['title', 'content', 'preview_image', 'published']
 
 
 class ContactForm(forms.Form):
