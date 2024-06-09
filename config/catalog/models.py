@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
-from django.urls import reverse
 
 
 class BlogPost(models.Model):
@@ -17,9 +16,6 @@ class BlogPost(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('blog_detail', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.title
@@ -56,3 +52,13 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Version(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='versions')
+    version_number = models.CharField(max_length=20)
+    version_name = models.CharField(max_length=100)
+    is_current = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.version_name} ({self.version_number})'

@@ -1,7 +1,13 @@
 {% extends 'catalog/base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Создать продукт{% endblock %}
+{% block title %}
+    {% if view.object %}
+        {{ view.object.name }}
+    {% else %}
+        New Product
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="container">

@@ -1,23 +1,26 @@
 {% extends 'catalog/base.html' %}
+{% load crispy_forms_tags %}
+
 {% block title %}
-{% if view.object %}
-    {{ view.object.title }}
-{% else %}
-    New Post
-{% endif %}
-{% endblock %}
-{% block content %}
-<div class="container">
-    <h1>
     {% if view.object %}
         {{ view.object.title }}
     {% else %}
         New Post
     {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>
+        {% if view.object %}
+            {{ view.object.title }}
+        {% else %}
+            New Post
+        {% endif %}
     </h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form|crispy }}
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </div>

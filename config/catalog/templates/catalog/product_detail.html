@@ -1,5 +1,4 @@
 {% extends 'catalog/base.html' %}
-
 {% load media_tags %}
 
 {% block title %}{{ product.name }}{% endblock %}
@@ -18,6 +17,11 @@
             <h1>{{ product.name }}</h1>
             <p>{{ product.description }}</p>
             <p><strong>Price:</strong> ${{ product.price }}</p>
+            {% if product.current_version %}
+                <p><strong>Current Version:</strong> {{ product.current_version.version_name }}</p>
+                <a href="{% url 'delete_version' product.current_version.pk %}" class="btn btn-danger">Delete Version</a>
+            {% endif %}
+            <a href="{% url 'create_version' %}?product_id={{ product.pk }}" class="btn btn-primary">Создать версию</a>
         </div>
     </div>
 </div>
