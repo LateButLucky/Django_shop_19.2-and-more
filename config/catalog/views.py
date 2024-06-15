@@ -1,3 +1,4 @@
+from django.shortcuts import redirect
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.utils.text import slugify
@@ -13,8 +14,7 @@ class HomeView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        products = context['products']
-        for product in products:
+        for product in context['products']:
             product.current_version = Version.objects.filter(product=product, is_current=True).first()
         return context
 
@@ -23,13 +23,6 @@ class ProductDetailView(DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
     context_object_name = 'product'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        product = self.get_object()
-        product.current_version = Version.objects.filter(product=product, is_current=True).first()
-        context['product'] = product
-        return context
 
 
 class ContactView(FormView):
@@ -46,6 +39,64 @@ class CreateProductView(CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/create_product.html'
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['version_form'] = VersionForm()
+        context['versions'] = Version.objects.filter(product=self.object)
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        version_form = VersionForm(self.request.POST)
+        if version_form.is_valid():
+            version = version_form.save(commit=False)
+            version.product = self.object
+            version.save()
+        return response
+
+
+class UpdateProductView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'catalog/product_form.html'
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['version_form'] = VersionForm()
+        context['product'] = self.object
+        context['versions'] = Version.objects.filter(product=self.object)
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        version_form = VersionForm(self.request.POST)
+        if version_form.is_valid():
+            version = version_form.save(commit=False)
+            version.product = self.object
+            version.save()
+        return response
+
+
+class VersionDeleteView(DeleteView):
+    model = Version
+
+    def get_success_url(self):
+        product_id = self.kwargs['product_id']
+        return reverse_lazy('update_product', kwargs={'pk': product_id})
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        return redirect(success_url)
+
+
+class DeleteProductView(DeleteView):
+    model = Product
+    template_name = 'catalog/product_confirm_delete.html'
     success_url = reverse_lazy('home')
 
 
@@ -99,19 +150,14 @@ class CreateVersionView(CreateView):
     model = Version
     form_class = VersionForm
     template_name = 'catalog/version_form.html'
+    success_url = reverse_lazy('home')
 
     def form_valid(self, form):
-        product_id = self.request.GET.get('product_id')
-        form.instance.product_id = product_id
+        form.instance.product_id = self.request.GET.get('product_id')
         return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy('product_detail', kwargs={'pk': self.object.product.pk})
 
 
 class DeleteVersionView(DeleteView):
     model = Version
     template_name = 'catalog/version_confirm_delete.html'
-
-    def get_success_url(self):
-        return reverse_lazy('product_detail', kwargs={'pk': self.object.product.pk})
+    success_url = reverse_lazy('home')

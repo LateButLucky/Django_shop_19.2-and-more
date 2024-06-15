@@ -16,12 +16,16 @@
         <div class="col-md-6">
             <h1>{{ product.name }}</h1>
             <p>{{ product.description }}</p>
-            <p><strong>Price:</strong> ${{ product.price }}</p>
+            <p><strong>Цена:</strong> ${{ product.price }}</p>
             {% if product.current_version %}
-                <p><strong>Current Version:</strong> {{ product.current_version.version_name }}</p>
-                <a href="{% url 'delete_version' product.current_version.pk %}" class="btn btn-danger">Delete Version</a>
+                <p><strong>Версия:</strong> {{ product.current_version.version_name }}</p>
             {% endif %}
-            <a href="{% url 'create_version' %}?product_id={{ product.pk }}" class="btn btn-primary">Создать версию</a>
+            <a href="{% url 'update_product' product.pk %}" class="btn btn-primary">Редактировать продукт</a>
+            <form action="{% url 'delete_product' product.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Удалить продукт</button>
+            </form>
+            <a href="{% url 'create_version' %}?product_id={{ product.pk }}" class="btn btn-secondary">Добавить версию</a>
         </div>
     </div>
 </div>

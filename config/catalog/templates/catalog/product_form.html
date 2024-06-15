@@ -5,7 +5,7 @@
     {% if view.object %}
         {{ view.object.name }}
     {% else %}
-        New Product
+        Редактирование продукта
     {% endif %}
 {% endblock %}
 
@@ -15,13 +15,27 @@
         {% if view.object %}
             {{ view.object.name }}
         {% else %}
-            New Product
+            Редактирование продукта
         {% endif %}
     </h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|crispy }}
-        <button type="submit" class="btn btn-primary">Save</button>
+        <h3>Версия продукта</h3>
+        {{ version_form|crispy }}
+        <button type="submit" class="btn btn-primary">Сохранить</button>
     </form>
+    <h3>Текущие версии</h3>
+    <ul>
+        {% for version in versions %}
+            <li>
+                {{ version.version_name }}
+                <form action="{% url 'delete_version' product.id version.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}
