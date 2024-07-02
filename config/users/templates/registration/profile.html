@@ -1,0 +1,15 @@
+<!-- users/templates/registration/profile.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1>Профиль</h1>
+    <p>Email: {{ user.email }}</p>
+    <p>Телефон: {{ user.phone_number }}</p>
+    <p>Страна: {{ user.country }}</p>
+    {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="Avatar">
+    {% else %}
+        <p>Аватар не установлен.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,11 +1,23 @@
 {% extends 'catalog/base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}{{ product.name if product else 'Новый продукт' }}{% endblock %}
+{% block title %}
+    {% if product %}
+        {{ product.name }}
+    {% else %}
+        Новый продукт
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1>{{ product.name if product else 'Новый продукт' }}</h1>
+    <h1>
+        {% if product %}
+            {{ product.name }}
+        {% else %}
+            Новый продукт
+        {% endif %}
+    </h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|crispy }}

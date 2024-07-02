@@ -4,6 +4,7 @@ from django.urls import reverse_lazy
 from django.utils.text import slugify
 from .models import Product, Contact, BlogPost, Version
 from .forms import ContactForm, ProductForm, BlogPostForm, VersionForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class HomeView(ListView):
@@ -35,7 +36,7 @@ class ContactView(FormView):
         return super().form_valid(form)
 
 
-class CreateProductView(CreateView):
+class CreateProductView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/create_product.html'
@@ -57,7 +58,7 @@ class CreateProductView(CreateView):
         return response
 
 
-class UpdateProductView(UpdateView):
+class UpdateProductView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
