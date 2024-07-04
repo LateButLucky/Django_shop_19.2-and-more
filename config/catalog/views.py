@@ -45,10 +45,10 @@ class CreateProductView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['version_form'] = VersionForm()
-        context['versions'] = Version.objects.filter(product=self.object)
         return context
 
     def form_valid(self, form):
+        form.instance.owner = self.request.user  # Привязываем продукт к текущему пользователю
         response = super().form_valid(form)
         version_form = VersionForm(self.request.POST)
         if version_form.is_valid():
@@ -72,6 +72,7 @@ class UpdateProductView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        form.instance.owner = self.request.user
         response = super().form_valid(form)
         version_form = VersionForm(self.request.POST)
         if version_form.is_valid():
