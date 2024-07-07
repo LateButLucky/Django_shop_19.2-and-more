@@ -50,6 +50,12 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    is_published = models.BooleanField(default=False)
+
+    class Meta:
+        permissions = [
+            ("can_publish_product", "Can publish product"),
+        ]
 
     def __str__(self):
         return self.name

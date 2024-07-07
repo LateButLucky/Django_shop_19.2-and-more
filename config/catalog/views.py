@@ -1,10 +1,11 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.utils.text import slugify
 from .models import Product, Contact, BlogPost, Version
 from .forms import ContactForm, ProductForm, BlogPostForm, VersionForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 
 class HomeView(ListView):
@@ -48,7 +49,7 @@ class CreateProductView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        form.instance.owner = self.request.user  # Привязываем продукт к текущему пользователю
+        form.instance.owner = self.request.user
         response = super().form_valid(form)
         version_form = VersionForm(self.request.POST)
         if version_form.is_valid():
@@ -72,7 +73,8 @@ class UpdateProductView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        form.instance.owner = self.request.user
+        if self.request.user != self.object.owner and not self.request.user.has_perm('catalog.change_product'):
+            return self.handle_no_permission()
         response = super().form_valid(form)
         version_form = VersionForm(self.request.POST)
         if version_form.is_valid():
@@ -80,6 +82,26 @@ class UpdateProductView(LoginRequiredMixin, UpdateView):
             version.product = self.object
             version.save()
         return response
+
+
+class PublishProductView(LoginRequiredMixin, UpdateView):
+    model = Product
+    fields = ['is_published']
+    template_name = 'catalog/publish_product.html'
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        if not self.request.user.has_perm('catalog.can_publish_product'):
+            return self.handle_no_permission()
+        return super().form_valid(form)
+
+
+def publish_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.user.has_perm('catalog.can_publish_product'):
+        product.is_published = not product.is_published
+        product.save()
+    return HttpResponseRedirect(reverse('product_detail', args=[pk]))
 
 
 class VersionDeleteView(DeleteView):

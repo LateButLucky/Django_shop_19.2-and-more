@@ -20,12 +20,26 @@
             {% if product.current_version %}
                 <p><strong>Версия:</strong> {{ product.current_version.version_name }}</p>
             {% endif %}
-            <a href="{% url 'update_product' product.pk %}" class="btn btn-primary">Редактировать продукт</a>
-            <form action="{% url 'delete_product' product.pk %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Удалить продукт</button>
-            </form>
-            <a href="{% url 'create_version' %}?product_id={{ product.pk }}" class="btn btn-secondary">Добавить версию</a>
+            {% if request.user == product.owner or perms.catalog.change_product %}
+                <a href="{% url 'update_product' product.pk %}" class="btn btn-primary">Редактировать продукт</a>
+                <form action="{% url 'delete_product' product.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить продукт</button>
+                </form>
+                <a href="{% url 'create_version' %}?product_id={{ product.pk }}" class="btn btn-secondary">Добавить версию</a>
+            {% endif %}
+            {% if perms.catalog.can_publish_product %}
+                <form action="{% url 'publish_product' product.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning">
+                        {% if product.is_published %}
+                            Отменить публикацию
+                        {% else %}
+                            Публиковать продукт
+                        {% endif %}
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
 </div>

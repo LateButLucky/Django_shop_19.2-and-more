@@ -12,7 +12,8 @@ from .views import (
     UpdateProductView,
     DeleteProductView,
     CreateVersionView,
-    VersionDeleteView
+    VersionDeleteView,
+    publish_product,
 )
 
 urlpatterns = [
@@ -29,4 +30,5 @@ urlpatterns = [
     path('blog/<slug:slug>/edit/', BlogPostUpdateView.as_view(), name='blog_update'),
     path('blog/<slug:slug>/delete/', BlogPostDeleteView.as_view(), name='blog_delete'),
     path('version/create/', CreateVersionView.as_view(), name='create_version'),
+    path('product/<int:pk>/publish/', publish_product, name='publish_product'),
 ]
