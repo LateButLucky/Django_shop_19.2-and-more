@@ -1,0 +1,26 @@
+# Django secret key
+SECRET_KEY=
+
+# Debug mode
+DEBUG=
+
+# Allowed hosts
+ALLOWED_HOSTS=
+
+# Database configuration
+DATABASE_NAME=
+DATABASE_USER=
+DATABASE_PASSWORD=
+DATABASE_HOST=
+DATABASE_PORT=
+
+# Email settings
+EMAIL_BACKEND=
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_USE_TLS=
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+
+# Redis URL
+REDIS_URL=

@@ -6,6 +6,8 @@ from .forms import ContactForm, ProductForm, BlogPostForm, VersionForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 
 class HomeView(ListView):
@@ -21,6 +23,7 @@ class HomeView(ListView):
         return context
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class ProductDetailView(DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
@@ -131,6 +134,7 @@ class BlogPostListView(ListView):
     queryset = BlogPost.objects.filter(published=True)
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class BlogPostDetailView(DetailView):
     model = BlogPost
     template_name = 'catalog/blog_detail.html'
